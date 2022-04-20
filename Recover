@@ -1,0 +1,82 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+int main(int argc, char *argv[])
+{
+    // check if input is valid, if so return 1 and print message
+    if (argc != 2)
+    {
+        printf("Usage: ./recover image");
+        return 1;
+    }
+
+    // open input file (the memory card), if there is no file
+    // print error message
+    FILE *file = fopen(argv[1], "r");
+    if (!file)
+    {
+        printf("Could not open %s.\n", argv[1]);
+        return 1;
+    }
+
+    // create buffer of size 512
+    unsigned char buffer[512];
+
+    // Create filename - mentioned in walkththrough
+    char filename[8];
+
+    // variable to keep track of the image number
+    int image_num = 0;
+
+    // Create output file
+    FILE *outfile = NULL;
+    // look for beginning of jpeg, each jpeg has a distinct header (from walkthrough)
+    // waklkthrough for size of bytes
+    // use fread include pointer to where to store data you're reading, the size of each element
+    // the number of elements to read and the file to read from
+    // remember buffer is an array of bytes
+    while (fread(buffer, sizeof(buffer), 1, file)
+    {
+        if (buffer[0] == 0xff &&
+        buffer[1] == 0xd8 &&
+        buffer[2] == 0xff &&
+        (buffer[3] & 0xf0) == 0xe0)
+        {
+            // write the newly found data to a new file using sprintf
+            // displays a formatted string
+            // use filename, "%0.3i.jpeg", 2
+            sprintf(filename, "%0.3i.jpeg", 2);
+
+            // filename - name of string you want to write to
+            // "%0.3i.jpeg" - format string, an integer needs 3 digits
+            // final parameter - number you want to substitute
+
+            // make sure output file is null at the beginning, if not close the output file
+            // open file using fopen, filename and "w" because the file we are opening we want to
+            // write to
+            if (outfile != NULL)
+            {
+            fclose(outfile);
+            }
+            outfile = fopen (filename, "w");
+
+            // add one to counter
+            image_num++;
+
+        }
+        else if (outfile != NULL)
+        {
+            // if the output file is not null, write it to memory
+            fwrite(buffer, sizeof(buffer), 1, file);
+
+        }
+    }
+
+
+    // close file
+    fclose(file);
+    if (outfile != NULL)
+    {
+        fclose(outfile);
+    }
+}
