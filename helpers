@@ -1,0 +1,135 @@
+#include "helpers.h"
+#include <math.h>
+#include <stdio.h>
+#include <stdlib.h>
+// all of these involve a for loop that loops through the height and width of an image
+// Convert image to grayscale
+void grayscale(int height, int width, RGBTRIPLE image[height][width])
+{
+    // grayscale means that red, green and blue are equal so write a function that sets all
+    // of these to the same value
+
+    // double for loop
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            // get values for red, green and blue
+            int red = image[i][j].rgbtRed;
+            int green = image[i][j].rgbtGreen;
+            int blue = image[i][j].rgbtBlue;
+
+            // average of the red, green, and blue values
+            int average = round((red + green + blue)/3.0);
+
+            // make each value equal to the average
+            image[i][j].rgbtRed = average;
+            image[i][j].rgbtGreen = average;
+            image[i][j].rgbtBlue = average;
+        }
+    }
+}
+
+// Convert image to sepia
+void sepia(int height, int width, RGBTRIPLE image[height][width])
+{
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            // get values for red, green and blue
+            int red = image[i][j].rgbtRed;
+            int green = image[i][j].rgbtGreen;
+            int blue = image[i][j].rgbtBlue;
+
+            // convert to sepia
+            int sepiaRed = round(.393 * red + .769 * green + .189 * blue);
+            int sepiaGreen = round(.349 * red + .686 * green + .168 * blue);
+            int sepiaBlue = round(.272 * red + .534 * green + .131 * blue);
+
+            // set limit of 255
+            image[i][j].rgbtRed = fmin(255, sepiaRed);
+            image[i][j].rgbtBlue = fmin(255, sepiaBlue);
+            image[i][j].rgbtGreen = fmin(255, sepiaGreen);
+        }
+    }
+
+}
+
+// Reflect image horizontally
+void reflect(int height, int width, RGBTRIPLE image[height][width])
+{
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width/2; j++)
+        {
+            RGBTRIPLE temp = image[i][j];
+            image[i][j] = image[i][width-(j+1)];
+            image[i][width-(j+1)] = temp;
+        }
+    }
+}
+
+RGBTRIPLE averagePixels(int height, int width, int i, int j, RGBTRIPLE image[height][width])
+{
+    float pixelsCount = 0;
+    int red = 0;
+    int blue = 0;
+    int green = 0;
+
+    for (int k = -1; k <= 1; k++)
+    {
+        for (int l = -1; l <= 1 ; l++)
+        {
+            // if statement to check boundaries, make sure is greater than equal to 0
+            // less than length of the array
+            if (i + k < height && i + k >= 0 && j + l < width && j + l >= 0)
+            {
+                // add values of pixels
+                red += image[i + k][j + l].rgbtRed;
+                green += image[i + k][j + l].rgbtGreen;
+                blue += image[i + k][j + l].rgbtBlue;
+
+                // add number of pixels to count for average
+                pixelsCount++;
+            }
+        }
+    }
+
+    // declare rgbtriple
+    RGBTRIPLE average;
+
+    // calculate average
+    average.rgbtRed = round(red / pixelsCount);
+    average.rgbtGreen = round(green / pixelsCount);
+    average.rgbtBlue = round(blue / pixelsCount);
+
+    return average;
+
+}
+
+// Blur image
+void blur(int height, int width, RGBTRIPLE image[height][width])
+{
+    RGBTRIPLE(*copy)[width] = calloc(height, width * sizeof(RGBTRIPLE));
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            copy[i][j] = image[i][j];
+        }
+    }
+
+    for (int i = 0; i < height; i++)
+    {
+        for (int j = 0; j < width; j++)
+        {
+            // set rgbt values
+            image[i][j] = averagePixels(height, width, i, j, copy);
+        }
+    }
+
+    free(copy);
+}
+
+
